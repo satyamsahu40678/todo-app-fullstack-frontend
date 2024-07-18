@@ -1,4 +1,6 @@
 import { createContext, useContext, useState } from "react";
+import { executeBasicAuthenticationService } from "../api/HelloWorldApiService";
+import { apiClient } from "../api/ApiClient";
 
 // create a context
 export const AuthContext = createContext()
@@ -11,25 +13,67 @@ export default function AuthProvider({ children }) {
     const [isAuthenticated, setIsAuthenticated] = useState(false);
 
 
-    function login(username, password){
-        if (username === 'nerdy' && password === 'password@123') {
-            setIsAuthenticated(true);
-            return true;
+    const [username, setUsername] = useState(null);
+
+
+    const [token, setToken] = useState(null);
+
+
+
+    // function login(username, password){
+    //     if (username === 'nerdy' && password === 'password@123') {
+    //         setIsAuthenticated(true);
+    //         setUsername(username);
+    //         return true;
+    //     }
+    //     else {
+    //         setIsAuthenticated(false)
+    //         setUsername(null);
+    //         return false;
+    //     }
+    // }
+
+    async function login(username, password) {
+        const batoken = 'Basic ' + window.btoa(username + ":" + password)
+
+
+        try {
+            const response = await executeBasicAuthenticationService(batoken);
+            if (response.status === 200) {
+                setIsAuthenticated(true);
+                setUsername(username);
+                setToken(batoken);
+
+                apiClient.interceptors.request.use(
+                    (config) => {
+                        config.headers.Authorization = batoken;
+                        return config;
+                    }
+                )
+
+                return true;
+            }
+            else {
+                logout()
+                return false;
+            }
         }
-        else {
-            setIsAuthenticated(false)
+        catch (error) {
+            logout()
             return false;
         }
     }
 
-    function logout(){
+    function logout() {
         setIsAuthenticated(false);
+        setToken(null);
+        setUsername(null);
     }
 
 
 
     return (
-        <AuthContext.Provider value={{ isAuthenticated, login, logout }}>
+        <AuthContext.Provider value={{ isAuthenticated, login, logout, username, token }}>
             {children}
         </AuthContext.Provider>
     )

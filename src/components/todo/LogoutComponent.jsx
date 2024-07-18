@@ -7,7 +7,7 @@ export default function LogoutComponent() {
             </div>
             <div className="mt-3">
                 <a href="/" className="btn btn-primary">
-                    Go to Home
+                    Go to Login
                 </a>
             </div>
         </div>

@@ -6,7 +6,7 @@ export default function LoginComponent() {
 
 
     const [username, setUsername] = useState('nerdy')
-    const [password, setPassword] = useState('password@123')
+    const [password, setPassword] = useState('1234')
     const [showErrorMessage, setErrorMessage] = useState(false)
     const navigate = useNavigate()
     const authContext = useAuth();
@@ -22,10 +22,9 @@ export default function LoginComponent() {
         setPassword(event.target.value)
     }
 
-    function handleSubmit() {
-        if (authContext.login(username, password)) {
+    async function handleSubmit() {
+        if (await authContext.login(username, password)) {
             navigate(`/welcome/${username}`)
-
         }
         else {
             setErrorMessage(true);
